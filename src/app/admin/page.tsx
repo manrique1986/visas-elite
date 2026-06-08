@@ -2,11 +2,12 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Sidebar } from '@/components/layout/sidebar'
 import { StatusBadge } from '@/components/ui/badge'
-import { Card, CardBody, CardHeader } from '@/components/ui/card'
+import { Card, CardBody } from '@/components/ui/card'
 import Link from 'next/link'
 import { Users, FolderOpen, CheckCircle, XCircle, Clock, ArrowRight, ShieldAlert } from 'lucide-react'
 import type { Case, Profile } from '@/lib/types'
 import { formatDate, formatDateTime } from '@/lib/utils'
+import { UserManager } from '@/components/admin/user-manager'
 
 export default async function AdminPage() {
   const supabase = await createClient()
@@ -155,25 +156,7 @@ export default async function AdminPage() {
               {/* Team */}
               <div>
                 <h2 className="font-semibold text-[#0f1e35] mb-4">Equipo</h2>
-                <Card>
-                  <div className="divide-y divide-[#dde3f0]">
-                    {profiles?.map((p: Profile) => (
-                      <div key={p.id} className="flex items-center gap-3 px-4 py-3">
-                        {p.avatar_url ? (
-                          <img src={p.avatar_url} alt="" className="w-8 h-8 rounded-full" />
-                        ) : (
-                          <div className="w-8 h-8 rounded-full bg-[#c9a030]/20 flex items-center justify-center text-[#c9a030] text-sm font-bold">
-                            {(p.full_name ?? p.email)[0]}
-                          </div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-[#0f1e35] truncate">{p.full_name ?? p.email}</p>
-                          <p className="text-xs text-[#6b7a99]">{p.role === 'admin' ? 'Administrador' : 'Empleado'}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </Card>
+                <UserManager profiles={(profiles ?? []) as Profile[]} currentUserId={user.id} />
               </div>
             </div>
           </div>

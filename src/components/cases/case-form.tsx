@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Card, CardBody, CardHeader } from '@/components/ui/card'
 import { Plus, Trash2, Users, Plane, Hotel, CalendarDays, GraduationCap } from 'lucide-react'
-import type { CaseFormData } from '@/lib/types'
+import type { CaseFormData, Profile } from '@/lib/types'
 
 const EMPTY_FORM: CaseFormData = {
   family_name: '',
@@ -49,12 +49,15 @@ interface CaseFormProps {
   caseId?: string
   detailId?: string
   initialValues?: CaseFormData
+  initialAssignedTo?: string | null
+  employees?: Pick<Profile, 'id' | 'full_name' | 'email'>[]
 }
 
-export function CaseForm({ userId, caseId, detailId, initialValues }: CaseFormProps) {
+export function CaseForm({ userId, caseId, detailId, initialValues, initialAssignedTo, employees }: CaseFormProps) {
   const router = useRouter()
   const isEdit = Boolean(caseId)
   const [form, setForm] = useState<CaseFormData>(initialValues ?? EMPTY_FORM)
+  const [assignedTo, setAssignedTo] = useState<string>(initialAssignedTo ?? '')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -118,7 +121,7 @@ export function CaseForm({ userId, caseId, detailId, initialValues }: CaseFormPr
     if (isEdit && caseId) {
       await supabase
         .from('cases')
-        .update({ family_name: form.family_name.trim() })
+        .update({ family_name: form.family_name.trim(), assigned_to: assignedTo || null })
         .eq('id', caseId)
 
       if (detailId) {
@@ -141,7 +144,7 @@ export function CaseForm({ userId, caseId, detailId, initialValues }: CaseFormPr
 
     const { data: newCase, error: caseError } = await supabase
       .from('cases')
-      .insert({ family_name: form.family_name.trim(), created_by: userId })
+      .insert({ family_name: form.family_name.trim(), created_by: userId, assigned_to: assignedTo || null })
       .select()
       .single()
 
@@ -177,6 +180,21 @@ export function CaseForm({ userId, caseId, detailId, initialValues }: CaseFormPr
             value={form.family_name}
             onChange={(e) => set('family_name', e.target.value)}
           />
+          {employees && employees.length > 0 && (
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-[#0f1e35]">Asignar a empleada</label>
+              <select
+                value={assignedTo}
+                onChange={(e) => setAssignedTo(e.target.value)}
+                className="w-full border border-[#dde3f0] rounded-lg px-3 py-2.5 text-sm text-[#0f1e35] bg-white focus:outline-none focus:ring-2 focus:ring-navy/30"
+              >
+                <option value="">Sin asignar</option>
+                {employees.map((e) => (
+                  <option key={e.id} value={e.id}>{e.full_name ?? e.email}</option>
+                ))}
+              </select>
+            </div>
+          )}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label="Nombre del Hijo"

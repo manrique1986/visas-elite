@@ -18,6 +18,7 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
   if (!user) redirect('/login')
 
   const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+  if (!profile?.approved) redirect('/pending')
 
   const { data: caseData } = await supabase
     .from('cases')

@@ -12,6 +12,7 @@ export default async function CasesPage() {
   if (!user) redirect('/login')
 
   const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+  if (!profile?.approved) redirect('/pending')
 
   const query = supabase
     .from('cases')
@@ -19,7 +20,7 @@ export default async function CasesPage() {
     .order('updated_at', { ascending: false })
 
   if (profile?.role !== 'admin') {
-    query.eq('created_by', user.id)
+    query.eq('assigned_to', user.id)
   }
 
   const { data: cases } = await query

@@ -10,6 +10,13 @@ export default async function NewCasePage() {
   if (!user) redirect('/login')
 
   const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+  if (!profile?.approved) redirect('/pending')
+
+  const { data: employees } = await supabase
+    .from('profiles')
+    .select('id, full_name, email')
+    .eq('approved', true)
+    .order('full_name')
 
   return (
     <div className="flex min-h-screen">
@@ -20,7 +27,7 @@ export default async function NewCasePage() {
             <h1 className="text-2xl font-bold text-[#0f1e35]">Nuevo Caso</h1>
             <p className="text-[#6b7a99] text-sm mt-0.5">Completa la información de la familia</p>
           </div>
-          <CaseForm userId={user.id} />
+          <CaseForm userId={user.id} employees={employees ?? []} />
         </div>
       </main>
     </div>

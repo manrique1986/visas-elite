@@ -10,6 +10,7 @@ create table if not exists profiles (
   full_name text,
   avatar_url text,
   role text not null default 'employee' check (role in ('admin', 'employee')),
+  approved boolean not null default false,
   created_at timestamptz default now()
 );
 

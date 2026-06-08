@@ -13,6 +13,7 @@ export default async function CaseEditPage({ params }: { params: Promise<{ id: s
   if (!user) redirect('/login')
 
   const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+  if (!profile?.approved) redirect('/pending')
 
   const { data: caseData } = await supabase
     .from('cases')
@@ -21,6 +22,12 @@ export default async function CaseEditPage({ params }: { params: Promise<{ id: s
     .single()
 
   if (!caseData) notFound()
+
+  const { data: employees } = await supabase
+    .from('profiles')
+    .select('id, full_name, email')
+    .eq('approved', true)
+    .order('full_name')
 
   const detail = caseData.case_details?.[0]
   const trainings: { session_date: string }[] = caseData.training_sessions ?? []
@@ -76,6 +83,8 @@ export default async function CaseEditPage({ params }: { params: Promise<{ id: s
             caseId={id}
             detailId={detail?.id}
             initialValues={initialValues}
+            initialAssignedTo={caseData.assigned_to}
+            employees={employees ?? []}
           />
         </div>
       </main>

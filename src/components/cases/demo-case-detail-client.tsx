@@ -4,6 +4,7 @@ import { StatusBadge } from '@/components/ui/badge'
 import { Card, CardBody, CardHeader } from '@/components/ui/card'
 import { DemoStatusSelector } from '@/components/cases/demo-status-selector'
 import { DemoNotes } from '@/components/cases/demo-notes'
+import { DemoMeetingScheduler } from '@/components/cases/demo-meeting-scheduler'
 import Link from 'next/link'
 import { ArrowLeft, Plane, Hotel, CalendarDays, GraduationCap, ImageDown, Users, Pencil, RotateCcw } from 'lucide-react'
 import type { DemoCase } from '@/lib/demo-data'
@@ -213,8 +214,9 @@ export function DemoCaseDetailClient({ staticCase }: Props) {
           )}
         </div>
 
-        {/* Notes */}
-        <div>
+        {/* Meetings + Notes */}
+        <div className="space-y-5">
+          <DemoMeetingScheduler />
           <DemoNotes initialNotes={caseData.notes} />
         </div>
       </div>

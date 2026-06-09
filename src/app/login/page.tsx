@@ -73,7 +73,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-white/30 text-xs text-center mt-6">
-          © 2025 Visas Elite — Agencia La Sabana
+         
         </p>
       </div>
     </div>

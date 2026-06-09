@@ -117,7 +117,7 @@ export function WhatsAppCard({ caseData }: WhatsAppCardProps) {
                 />
               </div>
               <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '10px', marginTop: '4px', letterSpacing: '0.3px' }}>
-                Agencia La Sabana • Bogotá
+               
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>
@@ -199,7 +199,7 @@ export function WhatsAppCard({ caseData }: WhatsAppCardProps) {
             fontSize: '10px',
             letterSpacing: '0.5px',
           }}>
-            GARANTÍA DE 8 SEMANAS POR CONTRATO • VISAS ELITE 2025
+         
           </div>
         </div>
       </div>

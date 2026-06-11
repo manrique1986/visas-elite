@@ -66,9 +66,7 @@ export default function LoginPage() {
           </div>
 
           <div className="px-8 pb-6 text-center">
-            <p className="text-xs text-[#6b7a99]">
-              Solo para empleados autorizados de Visas Elite
-            </p>
+           
           </div>
         </div>
 

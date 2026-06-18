@@ -30,6 +30,8 @@ interface WhatsAppCardProps {
       hotel_address: string | null
       checkin_date: string | null
       checkout_date: string | null
+      trainer_name: string | null
+      embassy_companion: string | null
     }[]
     training_sessions: { session_date: string; pickup_time: string | null; end_time: string | null }[]
   }
@@ -164,12 +166,14 @@ export function WhatsAppCard({ caseData }: WhatsAppCardProps) {
               <Row label="Fecha:" value={formatDateWithDay(detail.consular_appointment)} />
               <Row label="Hora:" value={formatTime12h(detail.consular_appointment)} />
               <Row label="Vestimenta:" value="Asistir con la vestimenta sugerida previamente en el grupo." />
+              <Row label="Acompañamiento:" value={detail.embassy_companion ?? null} />
             </Section>
           )}
 
           {/* Trainings */}
-          {trainings.length > 0 && (
+          {(trainings.length > 0 || detail?.trainer_name) && (
             <Section title="Entrenamientos Presenciales">
+              {detail?.trainer_name && <Row label="Entrenador:" value={detail.trainer_name} />}
               {trainings.map((t, i) => (
                 <div key={i} style={{ marginBottom: '10px' }}>
                   <div style={{ display: 'flex', gap: '8px', marginBottom: '3px' }}>

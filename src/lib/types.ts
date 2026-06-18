@@ -47,6 +47,8 @@ export interface CaseDetail {
   hotel_address: string | null
   checkin_date: string | null
   checkout_date: string | null
+  trainer_name: string | null
+  embassy_companion: string | null
 }
 
 export interface TrainingSession {
@@ -101,5 +103,7 @@ export interface CaseFormData {
   hotel_address: string
   checkin_date: string
   checkout_date: string
+  trainer_name: string
+  embassy_companion: string
   training_dates: { date: string; pickup_time: string; end_time: string }[]
 }

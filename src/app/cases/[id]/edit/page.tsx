@@ -60,6 +60,8 @@ export default async function CaseEditPage({ params }: { params: Promise<{ id: s
     hotel_address: detail?.hotel_address ?? '',
     checkin_date: detail?.checkin_date ?? '',
     checkout_date: detail?.checkout_date ?? '',
+    trainer_name: (detail as Record<string, unknown>)?.trainer_name as string ?? '',
+    embassy_companion: (detail as Record<string, unknown>)?.embassy_companion as string ?? '',
     training_dates: trainings.length > 0
       ? trainings.map(t => ({ date: t.session_date, pickup_time: t.pickup_time ?? '', end_time: t.end_time ?? '' }))
       : [{ date: '', pickup_time: '', end_time: '' }],

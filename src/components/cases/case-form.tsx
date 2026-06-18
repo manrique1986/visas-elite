@@ -31,6 +31,8 @@ const EMPTY_FORM: CaseFormData = {
   hotel_address: '',
   checkin_date: '',
   checkout_date: '',
+  trainer_name: '',
+  embassy_companion: '',
   training_dates: [{ date: '', pickup_time: '', end_time: '' }],
 }
 
@@ -115,6 +117,8 @@ export function CaseForm({ userId, caseId, detailId, initialValues, initialAssig
       hotel_address: form.hotel_address || null,
       checkin_date: form.checkin_date || null,
       checkout_date: form.checkout_date || null,
+      trainer_name: form.trainer_name || null,
+      embassy_companion: form.embassy_companion || null,
     }
 
     const validTrainings = form.training_dates.filter((t) => t.date.trim())
@@ -422,6 +426,27 @@ export function CaseForm({ userId, caseId, detailId, initialValues, initialAssig
             <Plus className="w-4 h-4" />
             Agregar fecha
           </button>
+        </CardBody>
+      </Card>
+
+      {/* Trainer & Embassy */}
+      <Card>
+        <CardHeader>
+          <SectionTitle icon={Users} title="Equipo de Acompañamiento" />
+        </CardHeader>
+        <CardBody className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Input
+            label="Nombre del Entrenador"
+            placeholder="Nombre completo"
+            value={form.trainer_name}
+            onChange={(e) => set('trainer_name', e.target.value)}
+          />
+          <Input
+            label="Acompañamiento a la Embajada"
+            placeholder="Nombre completo"
+            value={form.embassy_companion}
+            onChange={(e) => set('embassy_companion', e.target.value)}
+          />
         </CardBody>
       </Card>
 

@@ -23,6 +23,12 @@ export async function revokeUser(userId: string) {
   revalidatePath('/admin')
 }
 
+export async function deleteProfile(userId: string) {
+  const supabase = await requireAdmin()
+  await supabase.from('profiles').delete().eq('id', userId)
+  revalidatePath('/admin')
+}
+
 export async function changeRole(userId: string, role: 'admin' | 'employee') {
   const supabase = await requireAdmin()
   await supabase.from('profiles').update({ role }).eq('id', userId)

@@ -12,6 +12,7 @@ const EMPTY_FORM: CaseFormData = {
   family_name: '',
   son_name: '',
   father_name: '',
+  mother_name: '',
   cas_appointment: '',
   consular_appointment: '',
   arrival_flight_code: '',
@@ -30,7 +31,7 @@ const EMPTY_FORM: CaseFormData = {
   hotel_address: '',
   checkin_date: '',
   checkout_date: '',
-  training_dates: [''],
+  training_dates: [{ date: '', pickup_time: '', end_time: '' }],
 }
 
 function SectionTitle({ icon: Icon, title }: { icon: React.ElementType; title: string }) {
@@ -65,14 +66,13 @@ export function CaseForm({ userId, caseId, detailId, initialValues, initialAssig
     setForm((prev) => ({ ...prev, [field]: value }))
   }
 
-  function setTrainingDate(index: number, value: string) {
-    const dates = [...form.training_dates]
-    dates[index] = value
-    setForm((prev) => ({ ...prev, training_dates: dates }))
+  function setTrainingField(index: number, field: 'date' | 'pickup_time' | 'end_time', value: string) {
+    const updated = form.training_dates.map((t, i) => i === index ? { ...t, [field]: value } : t)
+    setForm((prev) => ({ ...prev, training_dates: updated }))
   }
 
   function addTrainingDate() {
-    setForm((prev) => ({ ...prev, training_dates: [...prev.training_dates, ''] }))
+    setForm((prev) => ({ ...prev, training_dates: [...prev.training_dates, { date: '', pickup_time: '', end_time: '' }] }))
   }
 
   function removeTrainingDate(index: number) {
@@ -96,6 +96,7 @@ export function CaseForm({ userId, caseId, detailId, initialValues, initialAssig
     const detailPayload = {
       son_name: form.son_name || null,
       father_name: form.father_name || null,
+      mother_name: form.mother_name || null,
       cas_appointment: form.cas_appointment ? `${form.cas_appointment}:00` : null,
       consular_appointment: form.consular_appointment ? `${form.consular_appointment}:00` : null,
       arrival_flight_code: form.arrival_flight_code || null,
@@ -116,7 +117,7 @@ export function CaseForm({ userId, caseId, detailId, initialValues, initialAssig
       checkout_date: form.checkout_date || null,
     }
 
-    const validDates = form.training_dates.filter((d) => d.trim())
+    const validTrainings = form.training_dates.filter((t) => t.date.trim())
 
     if (isEdit && caseId) {
       await supabase
@@ -131,9 +132,9 @@ export function CaseForm({ userId, caseId, detailId, initialValues, initialAssig
       }
 
       await supabase.from('training_sessions').delete().eq('case_id', caseId)
-      if (validDates.length > 0) {
+      if (validTrainings.length > 0) {
         await supabase.from('training_sessions').insert(
-          validDates.map((d) => ({ case_id: caseId, session_date: d }))
+          validTrainings.map((t) => ({ case_id: caseId, session_date: t.date, pickup_time: t.pickup_time || null, end_time: t.end_time || null }))
         )
       }
 
@@ -156,9 +157,9 @@ export function CaseForm({ userId, caseId, detailId, initialValues, initialAssig
 
     await supabase.from('case_details').insert({ case_id: newCase.id, ...detailPayload })
 
-    if (validDates.length > 0) {
+    if (validTrainings.length > 0) {
       await supabase.from('training_sessions').insert(
-        validDates.map((d) => ({ case_id: newCase.id, session_date: d }))
+        validTrainings.map((t) => ({ case_id: newCase.id, session_date: t.date, pickup_time: t.pickup_time || null, end_time: t.end_time || null }))
       )
     }
 
@@ -174,12 +175,6 @@ export function CaseForm({ userId, caseId, detailId, initialValues, initialAssig
           <SectionTitle icon={Users} title="Información de la Familia" />
         </CardHeader>
         <CardBody className="space-y-4">
-          <Input
-            label="Apellido de la Familia *"
-            placeholder="Ej: Guzman"
-            value={form.family_name}
-            onChange={(e) => set('family_name', e.target.value)}
-          />
           {employees && employees.length > 0 && (
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-[#0f1e35]">Asignar a empleada</label>
@@ -195,18 +190,28 @@ export function CaseForm({ userId, caseId, detailId, initialValues, initialAssig
               </select>
             </div>
           )}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Input
-              label="Nombre del Hijo"
+              label="Nombre del Hijo/a"
               placeholder="Nombre completo"
               value={form.son_name}
               onChange={(e) => set('son_name', e.target.value)}
             />
             <Input
-              label="Nombre del Padre/Madre"
+              label="Nombre del Padre *"
               placeholder="Nombre completo"
               value={form.father_name}
-              onChange={(e) => set('father_name', e.target.value)}
+              onChange={(e) => {
+                set('father_name', e.target.value)
+                const lastName = e.target.value.trim().split(' ').pop() ?? ''
+                set('family_name', lastName)
+              }}
+            />
+            <Input
+              label="Nombre de la Madre"
+              placeholder="Nombre completo"
+              value={form.mother_name}
+              onChange={(e) => set('mother_name', e.target.value)}
             />
           </div>
         </CardBody>
@@ -376,19 +381,33 @@ export function CaseForm({ userId, caseId, detailId, initialValues, initialAssig
           <SectionTitle icon={GraduationCap} title="Entrenamientos Presenciales" />
         </CardHeader>
         <CardBody className="space-y-3">
-          {form.training_dates.map((date, index) => (
-            <div key={index} className="flex items-center gap-2">
-              <Input
-                type="date"
-                value={date}
-                onChange={(e) => setTrainingDate(index, e.target.value)}
-                className="flex-1"
-              />
+          {form.training_dates.map((training, index) => (
+            <div key={index} className="flex items-start gap-2">
+              <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <Input
+                  type="date"
+                  label={index === 0 ? 'Fecha' : undefined}
+                  value={training.date}
+                  onChange={(e) => setTrainingField(index, 'date', e.target.value)}
+                />
+                <Input
+                  type="time"
+                  label={index === 0 ? 'Hora de recogida' : undefined}
+                  value={training.pickup_time}
+                  onChange={(e) => setTrainingField(index, 'pickup_time', e.target.value)}
+                />
+                <Input
+                  type="time"
+                  label={index === 0 ? 'Hora de finalización' : undefined}
+                  value={training.end_time}
+                  onChange={(e) => setTrainingField(index, 'end_time', e.target.value)}
+                />
+              </div>
               {form.training_dates.length > 1 && (
                 <button
                   type="button"
                   onClick={() => removeTrainingDate(index)}
-                  className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  className="p-2 mt-6 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>

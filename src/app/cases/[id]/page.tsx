@@ -10,6 +10,7 @@ import Link from 'next/link'
 import { ArrowLeft, Plane, Hotel, CalendarDays, GraduationCap, ImageDown, Pencil } from 'lucide-react'
 import type { Profile } from '@/lib/types'
 import { formatDate, formatDateTime, formatDateLong } from '@/lib/utils'
+import { DeleteCaseButton } from '@/components/cases/delete-case-button'
 
 export default async function CaseDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -67,7 +68,8 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
                 Creado el {formatDate(caseData.created_at)}
               </p>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
+              {profile?.role === 'admin' && <DeleteCaseButton caseId={id} />}
               <Link
                 href={`/cases/${id}/edit`}
                 className="inline-flex items-center gap-2 bg-white border border-[#dde3f0] text-[#0f1e35] px-4 py-2 rounded-lg text-sm font-semibold hover:bg-[#f4f6fb] transition-colors"

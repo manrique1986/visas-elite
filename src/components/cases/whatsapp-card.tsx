@@ -3,7 +3,7 @@ import { useRef, useState } from 'react'
 import html2canvas from 'html2canvas'
 import { Button } from '@/components/ui/button'
 import { Download, Loader2 } from 'lucide-react'
-import { formatDateLong, formatDate } from '@/lib/utils'
+import { formatDateLong, formatDateWithDay, formatTime12h, formatTimeStr } from '@/lib/utils'
 
 interface WhatsAppCardProps {
   caseData: {
@@ -11,6 +11,7 @@ interface WhatsAppCardProps {
     case_details: {
       son_name: string | null
       father_name: string | null
+      mother_name: string | null
       cas_appointment: string | null
       consular_appointment: string | null
       arrival_flight_code: string | null
@@ -30,7 +31,7 @@ interface WhatsAppCardProps {
       checkin_date: string | null
       checkout_date: string | null
     }[]
-    training_sessions: { session_date: string }[]
+    training_sessions: { session_date: string; pickup_time: string | null; end_time: string | null }[]
   }
 }
 
@@ -121,28 +122,64 @@ export function WhatsAppCard({ caseData }: WhatsAppCardProps) {
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Familia</div>
-              <div style={{ color: '#ffffff', fontSize: '20px', fontWeight: 800 }}>{caseData.family_name}</div>
+              {detail?.father_name && (
+                <div style={{ marginBottom: '2px' }}>
+                  <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Papá </span>
+                  <span style={{ color: '#ffffff', fontSize: '15px', fontWeight: 700 }}>{detail.father_name}</span>
+                </div>
+              )}
+              {detail?.mother_name && (
+                <div>
+                  <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Mamá </span>
+                  <span style={{ color: '#ffffff', fontSize: '15px', fontWeight: 700 }}>{detail.mother_name}</span>
+                </div>
+              )}
+              {!detail?.father_name && !detail?.mother_name && (
+                <div style={{ color: '#ffffff', fontSize: '20px', fontWeight: 800 }}>{caseData.family_name}</div>
+              )}
             </div>
           </div>
 
           {/* Members */}
-          {(detail?.son_name || detail?.father_name) && (
+          {(detail?.son_name || detail?.father_name || detail?.mother_name) && (
             <Section title="Integrantes">
-              <Row label="Hijo:" value={detail?.son_name ?? null} />
+              <Row label="Hijo/a:" value={detail?.son_name ?? null} />
               <Row label="Papá:" value={detail?.father_name ?? null} />
+              <Row label="Mamá:" value={detail?.mother_name ?? null} />
             </Section>
           )}
 
-          {/* Appointments */}
-          {(detail?.cas_appointment || detail?.consular_appointment) && (
-            <Section title="Citas">
-              {detail?.cas_appointment && (
-                <Row label="Cita CAS:" value={formatDate(detail.cas_appointment, "dd 'de' MMMM 'a las' HH:mm")} />
-              )}
-              {detail?.consular_appointment && (
-                <Row label="Cita Consular:" value={formatDate(detail.consular_appointment, "dd 'de' MMMM 'a las' HH:mm")} />
-              )}
+          {/* CAS */}
+          {detail?.cas_appointment && (
+            <Section title="CAS – Toma de huellas y fotografía">
+              <Row label="Fecha:" value={formatDateWithDay(detail.cas_appointment)} />
+              <Row label="Hora:" value={formatTime12h(detail.cas_appointment)} />
+              <Row label="Vestimenta:" value="Asistir con vestimenta normal." />
+            </Section>
+          )}
+
+          {/* Consular */}
+          {detail?.consular_appointment && (
+            <Section title="Entrevista Consular">
+              <Row label="Fecha:" value={formatDateWithDay(detail.consular_appointment)} />
+              <Row label="Hora:" value={formatTime12h(detail.consular_appointment)} />
+              <Row label="Vestimenta:" value="Asistir con la vestimenta sugerida previamente en el grupo." />
+            </Section>
+          )}
+
+          {/* Trainings */}
+          {trainings.length > 0 && (
+            <Section title="Entrenamientos Presenciales">
+              {trainings.map((t, i) => (
+                <div key={i} style={{ marginBottom: '10px' }}>
+                  <div style={{ display: 'flex', gap: '8px', marginBottom: '3px' }}>
+                    <span style={{ color: '#c9a030', fontSize: '13px', minWidth: '140px', fontWeight: 700 }}>{i === 0 ? 'Primer' : i === 1 ? 'Segundo' : i === 2 ? 'Tercer' : `${i + 1}°`} entrenamiento consular:</span>
+                  </div>
+                  <Row label="Fecha:" value={formatDateWithDay(t.session_date)} />
+                  {t.pickup_time && <Row label="Hora de recogida:" value={formatTimeStr(t.pickup_time) ?? t.pickup_time} />}
+                  {t.end_time && <Row label="Finalización:" value={formatTimeStr(t.end_time) ?? t.end_time} />}
+                </div>
+              ))}
             </Section>
           )}
 
@@ -180,13 +217,22 @@ export function WhatsAppCard({ caseData }: WhatsAppCardProps) {
             </Section>
           )}
 
-          {/* Trainings */}
-          {trainings.length > 0 && (
-            <Section title="Entrenamientos Presenciales">
-              {trainings.map((t, i) => (
-                <Row key={i} label={`Sesión ${i + 1}:`} value={formatDateLong(t.session_date)} />
-              ))}
-            </Section>
+          {/* Mensaje importante si no hay hotel */}
+          {!detail?.hotel_name && (
+            <div style={{
+              marginBottom: '16px',
+              padding: '10px 12px',
+              background: 'rgba(201,160,48,0.12)',
+              borderRadius: '8px',
+              borderLeft: '3px solid #c9a030',
+            }}>
+              <div style={{ color: '#c9a030', fontSize: '12px', fontWeight: 700, marginBottom: '4px' }}>
+                Importante
+              </div>
+              <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '12px', lineHeight: '1.5' }}>
+                Quedamos atentos a que nos compartan la dirección de alojamiento en Bogotá para coordinar oportunamente las recogidas correspondientes.
+              </div>
+            </div>
           )}
 
           {/* Footer */}
@@ -195,11 +241,13 @@ export function WhatsAppCard({ caseData }: WhatsAppCardProps) {
             paddingTop: '14px',
             borderTop: '1px solid rgba(201,160,48,0.3)',
             textAlign: 'center',
-            color: 'rgba(255,255,255,0.3)',
-            fontSize: '10px',
-            letterSpacing: '0.5px',
           }}>
-         
+            <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '11px', marginBottom: '2px' }}>
+              Muchas gracias.
+            </div>
+            <div style={{ color: '#c9a030', fontSize: '11px', fontWeight: 700, letterSpacing: '0.5px' }}>
+              Equipo Visas Elite
+            </div>
           </div>
         </div>
       </div>

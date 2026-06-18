@@ -1,6 +1,6 @@
 'use client'
 import { useTransition } from 'react'
-import { approveUser, revokeUser, changeRole } from '@/app/admin/actions/users'
+import { approveUser, revokeUser, changeRole, deleteProfile } from '@/app/admin/actions/users'
 import type { Profile } from '@/lib/types'
 import { CheckCircle, XCircle, ShieldAlert, User } from 'lucide-react'
 
@@ -92,9 +92,9 @@ function UserRow({ profile: p, currentUserId }: { profile: Profile; currentUserI
                 <CheckCircle className="w-4 h-4" />
               </button>
               <button
-                onClick={() => startTransition(() => revokeUser(p.id))}
+                onClick={() => startTransition(() => deleteProfile(p.id))}
                 disabled={isPending}
-                title="Rechazar"
+                title="Rechazar y eliminar"
                 className="p-1.5 text-[#6b7a99] hover:text-red-500 disabled:opacity-50 transition-colors"
               >
                 <XCircle className="w-4 h-4" />

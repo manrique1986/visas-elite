@@ -30,7 +30,7 @@ export default async function CaseEditPage({ params }: { params: Promise<{ id: s
     .order('full_name')
 
   const detail = caseData.case_details?.[0]
-  const trainings: { session_date: string }[] = caseData.training_sessions ?? []
+  const trainings: { session_date: string; pickup_time?: string | null; end_time?: string | null }[] = caseData.training_sessions ?? []
 
   function toDatetimeLocal(val: string | null | undefined) {
     if (!val) return ''
@@ -41,6 +41,7 @@ export default async function CaseEditPage({ params }: { params: Promise<{ id: s
     family_name: caseData.family_name ?? '',
     son_name: detail?.son_name ?? '',
     father_name: detail?.father_name ?? '',
+    mother_name: (detail as Record<string, unknown>)?.mother_name as string ?? '',
     cas_appointment: toDatetimeLocal(detail?.cas_appointment),
     consular_appointment: toDatetimeLocal(detail?.consular_appointment),
     arrival_flight_code: detail?.arrival_flight_code ?? '',
@@ -59,7 +60,9 @@ export default async function CaseEditPage({ params }: { params: Promise<{ id: s
     hotel_address: detail?.hotel_address ?? '',
     checkin_date: detail?.checkin_date ?? '',
     checkout_date: detail?.checkout_date ?? '',
-    training_dates: trainings.map(t => t.session_date),
+    training_dates: trainings.length > 0
+      ? trainings.map(t => ({ date: t.session_date, pickup_time: t.pickup_time ?? '', end_time: t.end_time ?? '' }))
+      : [{ date: '', pickup_time: '', end_time: '' }],
   }
 
   return (

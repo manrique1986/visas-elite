@@ -30,6 +30,7 @@ export interface CaseDetail {
   case_id: string
   son_name: string | null
   father_name: string | null
+  mother_name: string | null
   cas_appointment: string | null
   consular_appointment: string | null
   arrival_flight_code: string | null
@@ -52,6 +53,8 @@ export interface TrainingSession {
   id: string
   case_id: string
   session_date: string
+  pickup_time: string | null
+  end_time: string | null
 }
 
 export interface CaseNote {
@@ -79,6 +82,7 @@ export interface CaseFormData {
   family_name: string
   son_name: string
   father_name: string
+  mother_name: string
   cas_appointment: string
   consular_appointment: string
   arrival_flight_code: string
@@ -97,5 +101,5 @@ export interface CaseFormData {
   hotel_address: string
   checkin_date: string
   checkout_date: string
-  training_dates: string[]
+  training_dates: { date: string; pickup_time: string; end_time: string }[]
 }

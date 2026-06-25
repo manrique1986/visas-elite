@@ -32,6 +32,7 @@ interface WhatsAppCardProps {
       checkout_date: string | null
       trainer_name: string | null
       embassy_companion: string | null
+      comments: string | null
     }[]
     training_sessions: { session_date: string; pickup_time: string | null; end_time: string | null }[]
   }
@@ -218,6 +219,15 @@ export function WhatsAppCard({ caseData }: WhatsAppCardProps) {
               {detail.hotel_address && <Row label="Dirección:" value={detail.hotel_address} />}
               {detail.checkin_date && <Row label="Check-in:" value={formatDateLong(detail.checkin_date)} />}
               {detail.checkout_date && <Row label="Check-out:" value={formatDateLong(detail.checkout_date)} />}
+            </Section>
+          )}
+
+          {/* Comments */}
+          {detail?.comments && (
+            <Section title="Comentarios">
+              <div style={{ color: '#ffffff', fontSize: '13px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
+                {detail.comments}
+              </div>
             </Section>
           )}
 

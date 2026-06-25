@@ -38,17 +38,20 @@ export interface CaseDetail {
   arrival_departure_time: string | null
   arrival_destination: string | null
   arrival_arrival_time: string | null
+  arrival_date: string | null
   departure_flight_code: string | null
   departure_origin: string | null
   departure_departure_time: string | null
   departure_destination: string | null
   departure_arrival_time: string | null
+  departure_date: string | null
   hotel_name: string | null
   hotel_address: string | null
   checkin_date: string | null
   checkout_date: string | null
   trainer_name: string | null
   embassy_companion: string | null
+  comments: string | null
 }
 
 export interface TrainingSession {
@@ -105,5 +108,6 @@ export interface CaseFormData {
   checkout_date: string
   trainer_name: string
   embassy_companion: string
+  comments: string
   training_dates: { date: string; pickup_time: string; end_time: string }[]
 }

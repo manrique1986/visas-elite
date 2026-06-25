@@ -7,7 +7,7 @@ import { CaseNotes } from '@/components/cases/case-notes'
 import { MeetingScheduler } from '@/components/cases/meeting-scheduler'
 import { StatusSelector } from '@/components/cases/status-selector'
 import Link from 'next/link'
-import { ArrowLeft, Plane, Hotel, CalendarDays, GraduationCap, ImageDown, Pencil } from 'lucide-react'
+import { ArrowLeft, Plane, Hotel, CalendarDays, GraduationCap, ImageDown, Pencil, MessageSquare } from 'lucide-react'
 import type { Profile } from '@/lib/types'
 import { formatDate, formatDateTime, formatDateLong } from '@/lib/utils'
 import { DeleteCaseButton } from '@/components/cases/delete-case-button'
@@ -194,6 +194,19 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
                         Check-in: {formatDate(detail.checkin_date)} · Check-out: {formatDate(detail.checkout_date)}
                       </p>
                     )}
+                  </CardBody>
+                </Card>
+              )}
+
+              {/* Comments */}
+              {detail?.comments && (
+                <Card>
+                  <CardHeader className="flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4 text-navy" />
+                    <p className="text-sm font-semibold text-[#0f1e35]">Comentarios</p>
+                  </CardHeader>
+                  <CardBody>
+                    <p className="text-sm text-[#0f1e35] whitespace-pre-wrap">{detail.comments}</p>
                   </CardBody>
                 </Card>
               )}

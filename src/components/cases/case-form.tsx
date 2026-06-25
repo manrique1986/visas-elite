@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Card, CardBody, CardHeader } from '@/components/ui/card'
-import { Plus, Trash2, Users, Plane, Hotel, CalendarDays, GraduationCap } from 'lucide-react'
+import { Plus, Trash2, Users, Plane, Hotel, CalendarDays, GraduationCap, MessageSquare } from 'lucide-react'
 import type { CaseFormData, Profile } from '@/lib/types'
 
 const EMPTY_FORM: CaseFormData = {
@@ -33,6 +33,7 @@ const EMPTY_FORM: CaseFormData = {
   checkout_date: '',
   trainer_name: '',
   embassy_companion: '',
+  comments: '',
   training_dates: [{ date: '', pickup_time: '', end_time: '' }],
 }
 
@@ -119,20 +120,37 @@ export function CaseForm({ userId, caseId, detailId, initialValues, initialAssig
       checkout_date: form.checkout_date || null,
       trainer_name: form.trainer_name || null,
       embassy_companion: form.embassy_companion || null,
+      comments: form.comments || null,
     }
 
     const validTrainings = form.training_dates.filter((t) => t.date.trim())
 
     if (isEdit && caseId) {
-      await supabase
+      const { error: caseUpdateError } = await supabase
         .from('cases')
         .update({ family_name: form.family_name.trim(), assigned_to: assignedTo || null })
         .eq('id', caseId)
 
+      if (caseUpdateError) {
+        setError(`Error al actualizar el caso: ${caseUpdateError.message}`)
+        setLoading(false)
+        return
+      }
+
       if (detailId) {
-        await supabase.from('case_details').update(detailPayload).eq('id', detailId)
+        const { error: detailUpdateError } = await supabase.from('case_details').update(detailPayload).eq('id', detailId)
+        if (detailUpdateError) {
+          setError(`Error al guardar los detalles: ${detailUpdateError.message}`)
+          setLoading(false)
+          return
+        }
       } else {
-        await supabase.from('case_details').insert({ case_id: caseId, ...detailPayload })
+        const { error: detailInsertError } = await supabase.from('case_details').insert({ case_id: caseId, ...detailPayload })
+        if (detailInsertError) {
+          setError(`Error al guardar los detalles: ${detailInsertError.message}`)
+          setLoading(false)
+          return
+        }
       }
 
       await supabase.from('training_sessions').delete().eq('case_id', caseId)
@@ -447,6 +465,25 @@ export function CaseForm({ userId, caseId, detailId, initialValues, initialAssig
             value={form.embassy_companion}
             onChange={(e) => set('embassy_companion', e.target.value)}
           />
+        </CardBody>
+      </Card>
+
+      {/* Comments */}
+      <Card>
+        <CardHeader>
+          <SectionTitle icon={MessageSquare} title="Comentarios" />
+        </CardHeader>
+        <CardBody>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-[#0f1e35]">Comentarios adicionales</label>
+            <textarea
+              rows={4}
+              placeholder="Información adicional, observaciones o notas importantes para la familia..."
+              value={form.comments}
+              onChange={(e) => set('comments', e.target.value)}
+              className="w-full border border-[#dde3f0] rounded-lg px-3 py-2.5 text-sm text-[#0f1e35] bg-white focus:outline-none focus:ring-2 focus:ring-navy/30 resize-none"
+            />
+          </div>
         </CardBody>
       </Card>
 
